@@ -3,6 +3,7 @@ package com.doci.mtgpicgen.scryfallclient;
 
 import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallCard;
 import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallList;
+import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallResponse;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -28,8 +29,8 @@ public class ScryfallClient {
      */
 
 
-    public ScryfallList<ScryfallCard> fetchAllGates() {
-        ScryfallList<ScryfallCard> response = new ScryfallList<>();
+    public ScryfallResponse fetchAllGates() {
+        ScryfallResponse response = new ScryfallResponse();
         List<ScryfallCard> result = new ArrayList<>();
 
         String fullQuery = "type:land type:gate game:paper prefer:best";
@@ -71,8 +72,10 @@ public class ScryfallClient {
             }
         }
 
-        response.setData(result);
+        response.setCardList(result);
         response.setTotal_cards(result.size());
         return response;
     }
+
+
 }

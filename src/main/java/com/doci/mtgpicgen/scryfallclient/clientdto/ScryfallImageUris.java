@@ -1,14 +1,18 @@
 package com.doci.mtgpicgen.scryfallclient.clientdto;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+import java.net.URL;
+
+@Getter
+@Setter
 public class ScryfallImageUris {
 
-    private String small;
-    private String normal;
-    private String large;
-    private String png;
-    private String art_crop;
-    private String border_crop;
+    private URL small;
+    private URL normal;
+    private URL large;
+    private URL png;
+    private URL art_crop;
+    private URL border_crop;
 }
