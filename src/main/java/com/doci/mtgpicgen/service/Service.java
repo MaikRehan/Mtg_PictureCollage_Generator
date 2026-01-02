@@ -8,6 +8,7 @@ import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallList;
 import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.util.List;
 
 @org.springframework.stereotype.Service
@@ -25,9 +26,9 @@ public class Service {
     public ScryfallResponse getAllGates() {
         return scryfallClient.fetchAllGates();
     }
-    public CollageResponse getGateCollage() {
+    public CollageResponse getGateCollage() throws IOException {
         List<ScryfallCard> cardList = scryfallClient.fetchAllGates().getCardList();
-
+        imageService.createCollage(cardList);
         return null;
     }
 }

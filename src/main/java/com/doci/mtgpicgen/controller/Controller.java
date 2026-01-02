@@ -31,7 +31,11 @@ public class Controller {
         return service.getAllGates();
     }
     @PostMapping(value="/collage")
-    public CollageResponse collage(@RequestBody CollageRequest request) {
+    public CollageResponse collage(@RequestBody CollageRequest request) throws IOException {
+        return service.getGateCollage();
+    }
+    @GetMapping(value="/collage")
+    public CollageResponse collage() throws IOException {
         return service.getGateCollage();
     }
 }
