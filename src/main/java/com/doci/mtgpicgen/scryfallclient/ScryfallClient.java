@@ -1,6 +1,5 @@
 package com.doci.mtgpicgen.scryfallclient;
 
-
 import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallCard;
 import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallList;
 import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallResponse;
@@ -8,10 +7,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,58 +21,90 @@ public class ScryfallClient {
         this.webClient = webClient;
     }
 
-    /**
-     * Lädt alle Gate-Länder aus Scryfall (pagination + required headers)
-     */
-
+    // ==================== Public API ====================
 
     public ScryfallResponse fetchAllGates() {
-        ScryfallResponse response = new ScryfallResponse();
+        String query = buildGateQuery();
+        return fetchCards(query);
+    }
+
+    public ScryfallResponse fetchAllDarksteel() {
+        String query = buildDarksteelQuery();
+        return fetchCards(query);
+    }
+
+    // ==================== Query Builder ====================
+
+    private String buildGateQuery() {
+        return "type:land type:gate game:paper prefer:best";
+    }
+
+    private String buildDarksteelQuery() {
+        return "set:dst game:paper prefer:best";
+    }
+
+    // ==================== Fetch Logic ====================
+
+    private ScryfallResponse fetchCards(String query) {
         List<ScryfallCard> result = new ArrayList<>();
-
-        String fullQuery = "type:land type:gate game:paper prefer:best";
-
-        // Initialer Aufruf mit relativem Pfad (wird mit baseUrl kombiniert)
-        URI uri = UriComponentsBuilder.fromPath("/cards/search")
-                .queryParam("q", fullQuery)
-                .queryParam("unique", "art")
-                .build()
-                .toUri();
+        URI uri = buildInitialUri(query);
 
         while (uri != null) {
-            final URI finalUri = uri;
-
-            ScryfallList<ScryfallCard> page = webClient.get()
-                    .uri(uriBuilder -> finalUri.isAbsolute() ? finalUri : uriBuilder.path(finalUri.getPath()).query(finalUri.getQuery()).build())
-                    .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<ScryfallList<ScryfallCard>>() {})
-                    .block();
+            ScryfallList<ScryfallCard> page = fetchPage(uri);
 
             if (page != null && page.getData() != null) {
                 result.addAll(page.getData());
-
-                // Scryfall gibt eine absolute URL in 'next_page' zurück
-                uri = (page.isHas_more() && page.getNext_page() != null)
-                        ? URI.create(page.getNext_page())
-                        : null;
-
-                if (uri != null) {
-                    try {
-                        Thread.sleep(100); // Höfliches Warten laut Scryfall API Guideline
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        break;
-                    }
-                }
+                uri = getNextPageUri(page);
+                waitIfNeeded(uri);
             } else {
                 uri = null;
             }
         }
 
-        response.setCardList(result);
-        response.setTotal_cards(result.size());
-        return response;
+        return buildResponse(result);
     }
 
+    private URI buildInitialUri(String query) {
+        return UriComponentsBuilder.fromPath("/cards/search")
+                .queryParam("q", query)
+                .queryParam("unique", "art")
+                .build()
+                .toUri();
+    }
 
+    private ScryfallList<ScryfallCard> fetchPage(URI uri) {
+        final URI finalUri = uri;
+
+        return webClient.get()
+                .uri(uriBuilder -> finalUri.isAbsolute()
+                        ? finalUri
+                        : uriBuilder.path(finalUri.getPath()).query(finalUri.getQuery()).build())
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<ScryfallList<ScryfallCard>>() {})
+                .block();
+    }
+
+    private URI getNextPageUri(ScryfallList<ScryfallCard> page) {
+        if (page.isHas_more() && page.getNext_page() != null) {
+            return URI.create(page.getNext_page());
+        }
+        return null;
+    }
+
+    private void waitIfNeeded(URI nextUri) {
+        if (nextUri != null) {
+            try {
+                Thread.sleep(100); // Scryfall API Guideline
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private ScryfallResponse buildResponse(List<ScryfallCard> cards) {
+        ScryfallResponse response = new ScryfallResponse();
+        response.setCardList(cards);
+        response.setTotal_cards(cards.size());
+        return response;
+    }
 }

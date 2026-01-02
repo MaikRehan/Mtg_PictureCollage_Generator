@@ -35,7 +35,12 @@ public class Controller {
         return service.getGateCollage();
     }
     @GetMapping(value="/collage")
-    public CollageResponse collage() throws IOException {
+    public CollageResponse collageGates() throws IOException {
         return service.getGateCollage();
+    }
+
+    @GetMapping(value="/dstSet")
+    public CollageResponse collageDarksteel() throws IOException {
+        return service.getDarksteelCollage();
     }
 }

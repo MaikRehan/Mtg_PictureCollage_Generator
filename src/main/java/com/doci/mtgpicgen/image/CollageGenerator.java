@@ -13,7 +13,7 @@ public class CollageGenerator {
 
     private static final int TILE_WIDTH = 626;
     private static final int TILE_HEIGHT = 457;
-    private static final int COLUMNS = 5;
+    private static final int COLUMNS = 9;
     private static final int BORDER = 40;
 
     public enum ArrangementMethod {

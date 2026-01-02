@@ -31,4 +31,10 @@ public class Service {
         imageService.createCollage(cardList);
         return null;
     }
+
+    public CollageResponse getDarksteelCollage() throws IOException {
+        List<ScryfallCard> cardList = scryfallClient.fetchAllDarksteel().getCardList();
+        imageService.createCollage(cardList);
+        return null;
+    }
 }
