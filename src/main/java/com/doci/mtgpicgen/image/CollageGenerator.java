@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -21,7 +22,9 @@ public class CollageGenerator {
         HILBERT,
         SOM,
         SNAKE,
-        LINEAR
+        LINEAR,
+        RANDOM,
+        DEFAULT
     }
 
     public BufferedImage generateCollage(List<BufferedImage> artList, ArrangementMethod method) {
@@ -29,8 +32,7 @@ public class CollageGenerator {
             return createEmptyImage();
         }
 
-        List<BufferedImage> sortedImages = sortByRainbowColor(artList);
-        List<BufferedImage> arrangedImages = arrangeImages(sortedImages, method);
+        List<BufferedImage> arrangedImages = arrangeImages(artList, method);
 
         int rows = calculateRows(arrangedImages.size());
         BufferedImage collage = createCollageCanvas(rows);
@@ -43,14 +45,30 @@ public class CollageGenerator {
         return generateCollage(artList, ArrangementMethod.DIAGONAL);
     }
 
-    private List<BufferedImage> arrangeImages(List<BufferedImage> sortedImages, ArrangementMethod method) {
+    private List<BufferedImage> arrangeImages(List<BufferedImage> images, ArrangementMethod method) {
         return switch (method) {
-            case DIAGONAL -> arrangeDiagonally(sortedImages);
-            case HILBERT -> arrangeByHilbertCurve(sortedImages);
-            case SOM -> arrangeBySOM(sortedImages);
-            case SNAKE -> arrangeSnake(sortedImages);
-            case LINEAR -> sortedImages;
+            case DIAGONAL -> arrangeDiagonally(sortByRainbowColor(images));
+            case HILBERT -> arrangeByHilbertCurve(sortByRainbowColor(images));
+            case SOM -> arrangeBySOM(images);
+            case SNAKE -> arrangeSnake(sortByRainbowColor(images));
+            case LINEAR -> sortByRainbowColor(images);
+            case DEFAULT -> arrangeDefault(images);
+            case RANDOM -> arrangeRandom(images);
         };
+    }
+
+    // ==================== Default (Originalreihenfolge) ====================
+
+    private List<BufferedImage> arrangeDefault(List<BufferedImage> images) {
+        return new ArrayList<>(images);
+    }
+
+    // ==================== Random (Zufällige Anordnung) ====================
+
+    private List<BufferedImage> arrangeRandom(List<BufferedImage> images) {
+        List<BufferedImage> shuffled = new ArrayList<>(images);
+        Collections.shuffle(shuffled);
+        return shuffled;
     }
 
     // ==================== Sortierung ====================

@@ -44,6 +44,12 @@ public class ImageService {
         BufferedImage collageImageLinear = collageGenerator.generateCollage(images, LINEAR);  // Collage erstellen
         saveImage(collageImageLinear, name + "Linear");
 
+        BufferedImage collageImageRandom = collageGenerator.generateCollage(images, RANDOM);  // Collage erstellen
+        saveImage(collageImageRandom, name + "Random");
+
+        BufferedImage collageImageDefault = collageGenerator.generateCollage(images, DEFAULT);  // Collage erstellen
+        saveImage(collageImageDefault, name + "Default");
+
         String message = "Collage erfolgreich erstellt";
 
 
