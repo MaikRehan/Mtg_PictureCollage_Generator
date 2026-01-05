@@ -9,6 +9,7 @@ Backend:
   Nullpointer Check in case empty Card List
   How to handle non standard cards
 
+  Mosaic Picture over Mana Symbol
   Make backend safe
 
 Frontend:
