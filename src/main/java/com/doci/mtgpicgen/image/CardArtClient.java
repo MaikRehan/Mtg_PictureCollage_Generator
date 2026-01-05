@@ -30,7 +30,6 @@ public class CardArtClient {
                 imageList.add(image);
             }
         }
-
         return imageList;
     }
 }

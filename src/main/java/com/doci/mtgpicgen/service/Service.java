@@ -21,6 +21,7 @@ public class Service {
         this.imageService = imageService;
     }
 
+
     public CollageResponse getCardCollage(CollageRequest request) throws IOException {
         ScryfallResponse scryfallResponse = scryfallClient.fetchAllCards(request.getQuery());
 
@@ -30,18 +31,6 @@ public class Service {
         return new CollageResponse(imageServiceResponse.getCollageImageURL(),imageServiceResponse.getMessage() );
     }
 
-// ---------OLD TEST METHODS BELOW---------
-//    public CollageResponse getGateCollage() throws IOException {
-//        List<ScryfallCard> cardList = scryfallClient.fetchAllGates().getCardList();
-//        imageService.createCollage(cardList);
-//        return null;
-//    }
-//
-//    public CollageResponse getDarksteelCollage() throws IOException {
-//        List<ScryfallCard> cardList = scryfallClient.fetchAllDarksteel().getCardList();
-//        imageService.createCollage(cardList);
-//        return null;
-//    }
 
     private ImageServiceRequest mapToImageServiceRequest (CollageRequest collageRequest, ScryfallResponse scryfallResponse) {
         ImageServiceRequest imageServiceRequest = new ImageServiceRequest();
@@ -52,9 +41,5 @@ public class Service {
         imageServiceRequest.setTotalCards(scryfallResponse.getTotal_cards());
         imageServiceRequest.setArrangementMethod(collageRequest.getArrangementMethod());
         return imageServiceRequest;
-
     }
-
-
-
 }

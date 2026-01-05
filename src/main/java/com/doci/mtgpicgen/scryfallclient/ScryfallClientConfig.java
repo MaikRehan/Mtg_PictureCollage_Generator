@@ -21,7 +21,6 @@ public class ScryfallClientConfig {
     private String acceptValues;
 
 
-
     @Bean
     WebClient scryfallWebClient() {
 

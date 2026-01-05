@@ -12,8 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.doci.mtgpicgen.image.ArrangementMethod.*;
-
 @Service
 public class ImageService {
 

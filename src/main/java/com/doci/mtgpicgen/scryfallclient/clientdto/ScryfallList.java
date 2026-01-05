@@ -1,7 +1,6 @@
 package com.doci.mtgpicgen.scryfallclient.clientdto;
 
 import lombok.Data;
-
 import java.util.List;
 
 @Data

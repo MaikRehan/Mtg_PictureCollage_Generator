@@ -21,19 +21,11 @@ public class ScryfallClient {
         this.webClient = webClient;
     }
 
-/**
-    Fetches All Card-Information from Scryfall with the given Query Parameters
- */
-    public ScryfallResponse fetchAllCards(String query){
-        return fetchCards(query);
-    }
-
-
     /**
      Fetch Logic
      */
 
-    private ScryfallResponse fetchCards(String query) {
+    public ScryfallResponse fetchAllCards(String query) {
         List<ScryfallCard> result = new ArrayList<>();
         URI uri = buildInitialUri(query);
 
@@ -60,7 +52,9 @@ public class ScryfallClient {
                 .toUri();
     }
 
-    // ... existing code ...
+    /**
+     * Fetch a single page of cards.
+     */
     private ScryfallList<ScryfallCard> fetchPage(URI uri) {
         final URI finalUri = uri;
 
@@ -76,9 +70,6 @@ public class ScryfallClient {
     }
 
     /**
-     // ... existing code ...
-
-    /**
      Scryfall sends the response objects paginated in packages.
      */
     private URI getNextPageUri(ScryfallList<ScryfallCard> page) {
@@ -87,6 +78,7 @@ public class ScryfallClient {
         }
         return null;
     }
+
     /**
      Scryfall wants requests to be 100ms apart as of their fair use guidelines.
      */
@@ -105,29 +97,5 @@ public class ScryfallClient {
         response.setCardList(cards);
         response.setTotal_cards(cards.size());
         return response;
-    }
-
-    /**
-     Test Method to Fetch All Gates/ all Cards from Darksteel from Scryfall
-     */
-
-    public ScryfallResponse fetchAllGates() {
-        String query = buildGateQuery();
-        return fetchCards(query);
-    }
-    public ScryfallResponse fetchAllDarksteel() {
-        String query = buildDarksteelQuery();
-        return fetchCards(query);
-    }
-
-    /**
-     Query Builder Methods for Test-Cases
-     */
-
-    private String buildGateQuery() {
-        return "type:land type:gate game:paper prefer:best";
-    }
-    private String buildDarksteelQuery() {
-        return "set:dst game:paper prefer:best";
     }
 }
