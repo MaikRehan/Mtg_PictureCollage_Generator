@@ -3,16 +3,14 @@ package com.doci.mtgpicgen.image.imagedto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.awt.image.BufferedImage;
-
 @Getter
 @Setter
 public class ImageServiceResponse {
     private String message;
-    private String collageImageUri;
+    private String collageImageURL;
 
-    public ImageServiceResponse(BufferedImage collageImage, String message) {
+    public ImageServiceResponse(String collageImageURI, String message) {
         this.message = message;
-        this.collageImageUri = collageImage != null ? "collage_image_uri_placeholder" : null;
+        this.collageImageURL = collageImageURI;
     }
 }

@@ -8,4 +8,9 @@ import lombok.Setter;
 public class CollageResponse {
     private String message;
     private String collageImageUri;
+
+    public CollageResponse(String message, String collageImageUri) {
+        this.message = message;
+        this.collageImageUri = collageImageUri;
+    }
 }

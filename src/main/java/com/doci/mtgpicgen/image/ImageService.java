@@ -1,5 +1,6 @@
 package com.doci.mtgpicgen.image;
 
+import com.doci.mtgpicgen.image.imagedto.ImageServiceRequest;
 import com.doci.mtgpicgen.image.imagedto.ImageServiceResponse;
 import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallCard;
 import org.springframework.stereotype.Service;
@@ -11,49 +12,31 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static com.doci.mtgpicgen.image.CollageGenerator.ArrangementMethod.*;
+import static com.doci.mtgpicgen.image.ArrangementMethod.*;
 
 @Service
 public class ImageService {
 
     private final CardArtClient cardArtClient;
+    private final ImageGenerator imageGenerator;
 
-    public ImageService(CardArtClient cardArtClient) {
+    public ImageService(CardArtClient cardArtClient, ImageGenerator imageGenerator) {
         this.cardArtClient = cardArtClient;
+        this.imageGenerator = imageGenerator;
     }
 
 
-    public ImageServiceResponse createCollage(List<ScryfallCard> cardList) throws java.io.IOException {
-        CollageGenerator collageGenerator = new CollageGenerator();
+    public ImageServiceResponse createCollage(ImageServiceRequest request) throws java.io.IOException {
         String name = "collage_";
-        List<BufferedImage> images = downloadCardArt(cardList);
+        List<BufferedImage> images = downloadCardArt(request.getCardList());
 
-
-        BufferedImage collageImageDia = collageGenerator.generateCollage(images, DIAGONAL);  // Collage erstellen
-        saveImage(collageImageDia, name + "diagonal");
-        // Collage speichern
-        BufferedImage collageImageHilbert = collageGenerator.generateCollage(images, HILBERT);  // Collage erstellen
-        saveImage(collageImageHilbert, name + "Hilbert");
-
-        BufferedImage collageImageSOM = collageGenerator.generateCollage(images, SOM);  // Collage erstellen
-        saveImage(collageImageSOM, name + "SOM");
-
-        BufferedImage collageImageSnake = collageGenerator.generateCollage(images, SNAKE);  // Collage erstellen
-        saveImage(collageImageSnake, name + "Snake");
-
-        BufferedImage collageImageLinear = collageGenerator.generateCollage(images, LINEAR);  // Collage erstellen
-        saveImage(collageImageLinear, name + "Linear");
-
-        BufferedImage collageImageRandom = collageGenerator.generateCollage(images, RANDOM);  // Collage erstellen
-        saveImage(collageImageRandom, name + "Random");
-
-        BufferedImage collageImageDefault = collageGenerator.generateCollage(images, DEFAULT);  // Collage erstellen
-        saveImage(collageImageDefault, name + "Default");
-
+        BufferedImage collageImage = imageGenerator.generateCollage(images, request);
         String message = "Collage erfolgreich erstellt";
 
 
-        return new ImageServiceResponse(collageImageDia, message);
+        String collageImageURL = saveImage(collageImage, name + "diagonal");
+
+        return new ImageServiceResponse(collageImageURL, message);
     }
 
 
@@ -62,7 +45,7 @@ public class ImageService {
     }
 
 
-    private void saveImage(BufferedImage image, String name) throws java.io.IOException {
+    private String saveImage(BufferedImage image, String name) throws java.io.IOException {
         Path directory = Path.of("target", "generated");// Directory, in der die Datei abgespeichert werden soll
         if (!Files.exists(directory)) {
             Files.createDirectories(directory);                     //Directory erstellen, falls noch nicht vorhanden
@@ -70,8 +53,10 @@ public class ImageService {
         File outputFile = directory.resolve(name + ".jpg").toFile();
         ImageIO.write(image, "jpg", outputFile);
         System.out.println("Collage gespeichert: " + outputFile.getAbsolutePath() + " --- Farbverlauf "+ name);
+        return name + "." + outputFile.getAbsolutePath();
     }
-
-
-
 }
+
+
+
+

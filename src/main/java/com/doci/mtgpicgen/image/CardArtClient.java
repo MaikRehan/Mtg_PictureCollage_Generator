@@ -10,6 +10,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Scryfall does not provide the images themselves, but URLs to the images. This Client downloads the images from
+ * the URLs and returns them as a List of BufferedImages.
+ */
 @Component
 public class CardArtClient {
 

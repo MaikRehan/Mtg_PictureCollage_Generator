@@ -26,21 +26,21 @@ public class Controller {
     /**
      * GET /api/scryfall/gates
      */
-    @GetMapping("/gates")
-    public ScryfallResponse getAllGates() throws IOException {
-        return service.getAllGates();
-    }
+//    @GetMapping("/gates")
+//    public ScryfallResponse getAllGates() throws IOException {
+//        return service.getAllGates();
+//    }
     @PostMapping(value="/collage")
     public CollageResponse collage(@RequestBody CollageRequest request) throws IOException {
-        return service.getGateCollage();
+        return service.getCardCollage(request);
     }
-    @GetMapping(value="/collage")
-    public CollageResponse collageGates() throws IOException {
-        return service.getGateCollage();
-    }
+//    @GetMapping(value="/collage")
+//    public CollageResponse collageGates() throws IOException {
+//        return service.getGateCollage();
+//    }
 
-    @GetMapping(value="/dstSet")
-    public CollageResponse collageDarksteel() throws IOException {
-        return service.getDarksteelCollage();
-    }
+//    @GetMapping(value="/dstSet")
+//    public CollageResponse collageDarksteel() throws IOException {
+//        return service.getDarksteelCollage();
+//    }
 }

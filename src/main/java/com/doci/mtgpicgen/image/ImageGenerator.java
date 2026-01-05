@@ -1,5 +1,6 @@
 package com.doci.mtgpicgen.image;
 
+import com.doci.mtgpicgen.image.imagedto.ImageServiceRequest;
 import org.springframework.stereotype.Component;
 
 import java.awt.*;
@@ -9,30 +10,29 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.doci.mtgpicgen.image.ArrangementMethod.DEFAULT;
+
 @Component
-public class CollageGenerator {
+public class ImageGenerator {
 
     private static final int TILE_WIDTH = 626;
     private static final int TILE_HEIGHT = 457;
-    private static final int COLUMNS = 9;
-    private static final int BORDER = 40;
+    private int columns = 5;
+    private int border;
+    private ArrangementMethod arrangementMethod = DEFAULT;
 
-    public enum ArrangementMethod {
-        DIAGONAL,
-        HILBERT,
-        SOM,
-        SNAKE,
-        LINEAR,
-        RANDOM,
-        DEFAULT
-    }
 
-    public BufferedImage generateCollage(List<BufferedImage> artList, ArrangementMethod method) {
+    public BufferedImage generateCollage(List<BufferedImage> artList, ImageServiceRequest request) {
         if (artList == null || artList.isEmpty()) {
             return createEmptyImage();
         }
+        if (request.getArrangementMethod() != null) arrangementMethod = request.getArrangementMethod();
+        if (request.getCollageNumberOfColumns() != null && request.getCollageNumberOfColumns() != 0) {
+            this.columns = request.getCollageNumberOfColumns();
+        }
+        this.border = request.getBorderSize() != null ? request.getBorderSize() : 0; // Standardwert 40
 
-        List<BufferedImage> arrangedImages = arrangeImages(artList, method);
+        List<BufferedImage> arrangedImages = arrangeImages(artList, request.getArrangementMethod());
 
         int rows = calculateRows(arrangedImages.size());
         BufferedImage collage = createCollageCanvas(rows);
@@ -41,9 +41,6 @@ public class CollageGenerator {
         return collage;
     }
 
-    public BufferedImage generateCollage(List<BufferedImage> artList, String arrangementMethod) {
-        return generateCollage(artList, ArrangementMethod.DIAGONAL);
-    }
 
     private List<BufferedImage> arrangeImages(List<BufferedImage> images, ArrangementMethod method) {
         return switch (method) {
@@ -115,12 +112,12 @@ public class CollageGenerator {
 
     private List<BufferedImage> arrangeDiagonally(List<BufferedImage> sortedImages) {
         int rows = calculateRows(sortedImages.size());
-        BufferedImage[][] grid = new BufferedImage[rows][COLUMNS];
+        BufferedImage[][] grid = new BufferedImage[rows][this.columns];
 
         int imageIndex = 0;
-        for (int diag = 0; diag < rows + COLUMNS - 1 && imageIndex < sortedImages.size(); diag++) {
-            int startRow = Math.max(0, diag - COLUMNS + 1);
-            int startCol = Math.min(diag, COLUMNS - 1);
+        for (int diag = 0; diag < rows + this.columns - 1 && imageIndex < sortedImages.size(); diag++) {
+            int startRow = Math.max(0, diag - this.columns + 1);
+            int startCol = Math.min(diag, this.columns - 1);
 
             for (int row = startRow, col = startCol;
                  row < rows && col >= 0 && imageIndex < sortedImages.size();
@@ -136,15 +133,15 @@ public class CollageGenerator {
 
     private List<BufferedImage> arrangeByHilbertCurve(List<BufferedImage> sortedImages) {
         int rows = calculateRows(sortedImages.size());
-        int size = Math.max(COLUMNS, rows);
+        int size = Math.max(this.columns, rows);
         int order = (int) Math.ceil(Math.log(size) / Math.log(2));
 
-        BufferedImage[][] grid = new BufferedImage[rows][COLUMNS];
+        BufferedImage[][] grid = new BufferedImage[rows][this.columns];
         List<Point> hilbertPoints = generateHilbertCurve(order);
 
         int imageIndex = 0;
         for (Point p : hilbertPoints) {
-            if (p.y < rows && p.x < COLUMNS && imageIndex < sortedImages.size()) {
+            if (p.y < rows && p.x < this.columns && imageIndex < sortedImages.size()) {
                 if (grid[p.y][p.x] == null) {
                     grid[p.y][p.x] = sortedImages.get(imageIndex++);
                 }
@@ -188,12 +185,12 @@ public class CollageGenerator {
 
     private List<BufferedImage> arrangeBySOM(List<BufferedImage> images) {
         int rows = calculateRows(images.size());
-        double[][] colorMap = new double[rows][COLUMNS];
-        BufferedImage[][] grid = new BufferedImage[rows][COLUMNS];
+        double[][] colorMap = new double[rows][this.columns];
+        BufferedImage[][] grid = new BufferedImage[rows][this.columns];
 
         for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < COLUMNS; c++) {
-                colorMap[r][c] = (double) (r + c) / (rows + COLUMNS - 2);
+            for (int c = 0; c < this.columns; c++) {
+                colorMap[r][c] = (double) (r + c) / (rows + this.columns - 2);
             }
         }
 
@@ -202,7 +199,7 @@ public class CollageGenerator {
                 .sorted(Comparator.comparingDouble(ImageWithHue::hue))
                 .toList();
 
-        boolean[][] used = new boolean[rows][COLUMNS];
+        boolean[][] used = new boolean[rows][this.columns];
 
         for (ImageWithHue iwh : imagesWithHue) {
             Point best = findBestMatch(colorMap, used, iwh.hue(), rows);
@@ -220,7 +217,7 @@ public class CollageGenerator {
         Point best = null;
 
         for (int r = 0; r < rows; r++) {
-            for (int c = 0; c < COLUMNS; c++) {
+            for (int c = 0; c < this.columns; c++) {
                 if (!used[r][c]) {
                     double dist = Math.abs(colorMap[r][c] - hue);
                     if (dist < minDist) {
@@ -239,16 +236,16 @@ public class CollageGenerator {
 
     private List<BufferedImage> arrangeSnake(List<BufferedImage> sortedImages) {
         int rows = calculateRows(sortedImages.size());
-        BufferedImage[][] grid = new BufferedImage[rows][COLUMNS];
+        BufferedImage[][] grid = new BufferedImage[rows][this.columns];
 
         int imageIndex = 0;
         for (int row = 0; row < rows && imageIndex < sortedImages.size(); row++) {
             if (row % 2 == 0) {
-                for (int col = 0; col < COLUMNS && imageIndex < sortedImages.size(); col++) {
+                for (int col = 0; col < this.columns && imageIndex < sortedImages.size(); col++) {
                     grid[row][col] = sortedImages.get(imageIndex++);
                 }
             } else {
-                for (int col = COLUMNS - 1; col >= 0 && imageIndex < sortedImages.size(); col--) {
+                for (int col = this.columns - 1; col >= 0 && imageIndex < sortedImages.size(); col--) {
                     grid[row][col] = sortedImages.get(imageIndex++);
                 }
             }
@@ -262,7 +259,7 @@ public class CollageGenerator {
     private List<BufferedImage> gridToList(BufferedImage[][] grid, int rows) {
         List<BufferedImage> result = new ArrayList<>();
         for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < COLUMNS; col++) {
+            for (int col = 0; col < this.columns; col++) {
                 if (grid[row][col] != null) {
                     result.add(grid[row][col]);
                 }
@@ -276,12 +273,12 @@ public class CollageGenerator {
     }
 
     private int calculateRows(int imageCount) {
-        return (int) Math.ceil((double) imageCount / COLUMNS);
+        return (int) Math.ceil((double) imageCount / this.columns);
     }
 
     private BufferedImage createCollageCanvas(int rows) {
-        int width = COLUMNS * TILE_WIDTH + (COLUMNS + 1) * BORDER;
-        int height = rows * TILE_HEIGHT + (rows + 1) * BORDER;
+        int width = this.columns * TILE_WIDTH + (this.columns + 1) * this.border;
+        int height = rows * TILE_HEIGHT + (rows + 1) * this.border;
 
         BufferedImage canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         fillBackground(canvas);
@@ -308,10 +305,10 @@ public class CollageGenerator {
     }
 
     private Point calculatePosition(int index) {
-        int col = index % COLUMNS;
-        int row = index / COLUMNS;
-        int x = BORDER + col * (TILE_WIDTH + BORDER);
-        int y = BORDER + row * (TILE_HEIGHT + BORDER);
+        int col = index % this.columns;
+        int row = index / this.columns;
+        int x = this.border + col * (TILE_WIDTH + this.border);
+        int y = this.border + row * (TILE_HEIGHT + this.border);
 
         return new Point(x, y);
     }

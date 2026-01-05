@@ -21,29 +21,17 @@ public class ScryfallClient {
         this.webClient = webClient;
     }
 
-    // ==================== Public API ====================
-
-    public ScryfallResponse fetchAllGates() {
-        String query = buildGateQuery();
+/**
+    Fetches All Card-Information from Scryfall with the given Query Parameters
+ */
+    public ScryfallResponse fetchAllCards(String query){
         return fetchCards(query);
     }
 
-    public ScryfallResponse fetchAllDarksteel() {
-        String query = buildDarksteelQuery();
-        return fetchCards(query);
-    }
 
-    // ==================== Query Builder ====================
-
-    private String buildGateQuery() {
-        return "type:land type:gate game:paper prefer:best";
-    }
-
-    private String buildDarksteelQuery() {
-        return "set:dst game:paper prefer:best";
-    }
-
-    // ==================== Fetch Logic ====================
+    /**
+     Fetch Logic
+     */
 
     private ScryfallResponse fetchCards(String query) {
         List<ScryfallCard> result = new ArrayList<>();
@@ -72,6 +60,7 @@ public class ScryfallClient {
                 .toUri();
     }
 
+    // ... existing code ...
     private ScryfallList<ScryfallCard> fetchPage(URI uri) {
         final URI finalUri = uri;
 
@@ -81,16 +70,26 @@ public class ScryfallClient {
                         : uriBuilder.path(finalUri.getPath()).query(finalUri.getQuery()).build())
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ScryfallList<ScryfallCard>>() {})
+                .onErrorResume(org.springframework.web.reactive.function.client.WebClientResponseException.NotFound.class,
+                        e -> reactor.core.publisher.Mono.empty())
                 .block();
     }
 
+    /**
+     // ... existing code ...
+
+    /**
+     Scryfall sends the response objects paginated in packages.
+     */
     private URI getNextPageUri(ScryfallList<ScryfallCard> page) {
         if (page.isHas_more() && page.getNext_page() != null) {
             return URI.create(page.getNext_page());
         }
         return null;
     }
-
+    /**
+     Scryfall wants requests to be 100ms apart as of their fair use guidelines.
+     */
     private void waitIfNeeded(URI nextUri) {
         if (nextUri != null) {
             try {
@@ -106,5 +105,29 @@ public class ScryfallClient {
         response.setCardList(cards);
         response.setTotal_cards(cards.size());
         return response;
+    }
+
+    /**
+     Test Method to Fetch All Gates/ all Cards from Darksteel from Scryfall
+     */
+
+    public ScryfallResponse fetchAllGates() {
+        String query = buildGateQuery();
+        return fetchCards(query);
+    }
+    public ScryfallResponse fetchAllDarksteel() {
+        String query = buildDarksteelQuery();
+        return fetchCards(query);
+    }
+
+    /**
+     Query Builder Methods for Test-Cases
+     */
+
+    private String buildGateQuery() {
+        return "type:land type:gate game:paper prefer:best";
+    }
+    private String buildDarksteelQuery() {
+        return "set:dst game:paper prefer:best";
     }
 }
