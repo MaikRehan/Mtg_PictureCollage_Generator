@@ -1,6 +1,6 @@
 TODO: 
 Backend:
-  fix card save filename
+  ~~fix card save filename~~
   fix border not showing
   fix cardgenerator static variables
   Max resolution to 65k uncapped
@@ -11,6 +11,7 @@ Backend:
 
   Mosaic Picture over Mana Symbol
   Make backend safe
+  Use Scryfall Bulk Data and implement own database
 
 Frontend:
   Build frontend
@@ -18,9 +19,9 @@ Frontend:
   MAke Impressum
 
 Deployment:
-  Cards are saveable
+  Cards are savable
   Deploy on AWS
-  Buy domain (dochi 
+  Buy domain (Name?) 
 
 
 Misc:

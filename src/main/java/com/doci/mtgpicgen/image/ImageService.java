@@ -32,9 +32,9 @@ public class ImageService {
         String message = "Collage erfolgreich erstellt";
 
 
-        String collageImageURL = saveImage(collageImage, name + "diagonal");
+        String collageImageURL = saveImage(collageImage, request.getArrangementMethod().getValue());
 
-        return new ImageServiceResponse(collageImageURL, message);
+        return new ImageServiceResponse(message, collageImageURL);
     }
 
 
@@ -43,15 +43,15 @@ public class ImageService {
     }
 
 
-    private String saveImage(BufferedImage image, String name) throws java.io.IOException {
+    private String saveImage(BufferedImage image, String arrangementMethodMethod) throws java.io.IOException {
         Path directory = Path.of("target", "generated");// Directory, in der die Datei abgespeichert werden soll
         if (!Files.exists(directory)) {
             Files.createDirectories(directory);                     //Directory erstellen, falls noch nicht vorhanden
         }
-        File outputFile = directory.resolve(name + ".jpg").toFile();
+        File outputFile = directory.resolve( "collage_" + arrangementMethodMethod + ".jpg").toFile();
         ImageIO.write(image, "jpg", outputFile);
-        System.out.println("Collage gespeichert: " + outputFile.getAbsolutePath() + " --- Farbverlauf "+ name);
-        return name + "." + outputFile.getAbsolutePath();
+        System.out.println("Collage gespeichert: " + outputFile.getAbsolutePath() + " --- Methode: "+ arrangementMethodMethod);
+        return outputFile.getAbsolutePath();
     }
 }
 
