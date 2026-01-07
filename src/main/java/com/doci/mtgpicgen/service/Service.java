@@ -28,7 +28,7 @@ public class Service {
         ScryfallResponse scryfallResponse = scryfallClient.fetchAllCards(request.getQuery());
         System.out.println("Anzahl der Karten: " + scryfallResponse.getTotal_cards());
         ImageServiceRequest imageServiceRequest = mapToImageServiceRequest(request, scryfallResponse);
-        imageServiceRequest.setCardList(dropExcessCards(imageServiceRequest));
+        imageServiceRequest.setCardList(dropExcessCards(imageServiceRequest, request.isDropExcessCards()));
         ImageServiceResponse imageServiceResponse = imageService.createCollage(imageServiceRequest);
 
         return new CollageResponse(imageServiceResponse.getCollageImageURL(),imageServiceResponse.getMessage() );
@@ -46,11 +46,11 @@ public class Service {
         imageServiceRequest.setBorderSize(collageRequest.getBorderSize());
         return imageServiceRequest;
     }
-    private List<ScryfallCard> dropExcessCards(ImageServiceRequest imageServiceRequest) {
+    private List<ScryfallCard> dropExcessCards(ImageServiceRequest imageServiceRequest, boolean dropExcessCards) {
         int cardCount = imageServiceRequest.getCardList().size();
         int columns = imageServiceRequest.getCollageNumberOfColumns();
 
-        if (columns <= 0) {
+        if (columns <= 0 || cardCount < columns || !dropExcessCards) {
             return imageServiceRequest.getCardList();
         }
         int remainder = cardCount % columns;

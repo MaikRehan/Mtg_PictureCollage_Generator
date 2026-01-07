@@ -13,4 +13,5 @@ public class CollageRequest {
     private int numberOfColumns;
     private ArrangementMethod arrangementMethod;
     private int borderSize;
+    private boolean dropExcessCards;
 }
