@@ -47,7 +47,7 @@ public class ScryfallClient {
     private URI buildInitialUri(String query) {
         return UriComponentsBuilder.fromPath("/cards/search")
                 .queryParam("q", query)
-                .queryParam("unique", "art")
+   //             .queryParam("unique", "art")
                 .build()
                 .toUri();
     }
