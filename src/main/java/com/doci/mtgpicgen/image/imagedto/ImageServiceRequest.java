@@ -11,10 +11,10 @@ import java.util.List;
 @Setter
 public class ImageServiceRequest {
     private List<ScryfallCard> cardList;
-    private Integer collageNumberOfColumns;
-    private Integer collageWidth;
-    private Integer collageHeight;
-    private Integer totalCards;
+    private int collageNumberOfColumns;
+    private int collageWidth;
+    private int collageHeight;
+    private int totalCards;
     private ArrangementMethod arrangementMethod;
-    private Integer borderSize;
+    private int borderSize;
 }

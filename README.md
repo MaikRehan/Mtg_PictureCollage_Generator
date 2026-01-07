@@ -1,8 +1,8 @@
 TODO: 
 Backend:
   ~~fix card save filename~~
-  fix border not showing
-  fix cardgenerator static variables
+  ~~fix border not showing~~
+  ~~fix cardgenerator static variables~~
   Max resolution to 65k uncapped
   How to handle cards over maxiumum
   Put ratio variable in request
@@ -22,7 +22,6 @@ Deployment:
   Cards are savable
   Deploy on AWS
   Buy domain (Name?) 
-
 
 Misc:
   Make artist List avaible for User

@@ -8,9 +8,9 @@ import lombok.Setter;
 @Setter
 public class CollageRequest {
     private String query;
-    private Integer collageWidth;
-    private Integer collageHeight;
-    private Integer numberOfColumns;
+    private int collageWidth;
+    private int collageHeight;
+    private int numberOfColumns;
     private ArrangementMethod arrangementMethod;
-    private Integer borderSize;
+    private int borderSize;
 }

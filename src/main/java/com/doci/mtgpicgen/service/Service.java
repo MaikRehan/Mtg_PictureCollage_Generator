@@ -40,6 +40,7 @@ public class Service {
         imageServiceRequest.setCollageHeight(collageRequest.getCollageHeight());
         imageServiceRequest.setTotalCards(scryfallResponse.getTotal_cards());
         imageServiceRequest.setArrangementMethod(collageRequest.getArrangementMethod());
+        imageServiceRequest.setBorderSize(collageRequest.getBorderSize());
         return imageServiceRequest;
     }
 }
