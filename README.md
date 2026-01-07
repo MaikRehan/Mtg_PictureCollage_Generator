@@ -25,5 +25,5 @@ Deployment:
 
 Misc:
   Make artist List avaible for User
-  Fix Github Commits
+  ~~Fix Github Commits~~
   
