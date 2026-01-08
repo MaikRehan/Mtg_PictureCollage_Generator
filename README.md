@@ -2,21 +2,21 @@ TODO:
 Backend:
   ~~fix card save filename~~
   ~~fix border not showing~~
-  ~~fix cardgenerator static variables~~
+  ~~fix cardGenerator static variables~~
   Max resolution to 65k uncapped
-  ~~How to handle cards over maxiumum~~
+  ~~How to handle cards over maximum~~
   Put ratio variable in request
-  Nullpointer Check in case empty Card List
   How to handle non standard cards
-  How to handle different card frames
-  handle search parameters
+  ~~How to handle different card frames~~
+  ~~Nullpointer Check in case empty Card List~~
+  handle search parameters(make search parameters get handled in backend compared to frontend)
   Preset for common desktop resolutions
   vertical and horizontal layout
-
+  write tests
 
   Mosaic Picture over Mana Symbol
   Make backend safe
-  Use Scryfall Bulk Data and implement own database
+  Use Scryfall Bulk Data and implement my own database
 
 Frontend:
   Build frontend
@@ -24,7 +24,8 @@ Frontend:
   MAke Impressum
   Card with custom single card selection menu
   Import of card list of other sides (commander decks)
- 
+  preview of collage
+
 
 Deployment:
   Cards are savable

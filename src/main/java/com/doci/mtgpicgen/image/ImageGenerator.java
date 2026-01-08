@@ -1,5 +1,6 @@
 package com.doci.mtgpicgen.image;
 
+import com.doci.mtgpicgen.image.imagedto.CardArtClientResponse;
 import com.doci.mtgpicgen.image.imagedto.ImageServiceRequest;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +16,21 @@ import static com.doci.mtgpicgen.image.ArrangementMethod.DEFAULT;
 @Component
 public class ImageGenerator {
 
-    private static final int TILE_WIDTH = 626;
-    private static final int TILE_HEIGHT = 457;
+    // Fallback-Werte falls keine Dimensionen übergeben werden
+    private static final int DEFAULT_TILE_WIDTH = 626;
+    private static final int DEFAULT_TILE_HEIGHT = 457;
 
-    public BufferedImage generateCollage(List<BufferedImage> artList, ImageServiceRequest request) {
+    public BufferedImage generateCollage(CardArtClientResponse cardArtResponse, ImageServiceRequest request) {
+        List<BufferedImage> artList = cardArtResponse.getImages();
+
         if (artList == null || artList.isEmpty()) {
             return createEmptyImage();
         }
+
+        // Dynamische Dimensionen aus Response verwenden
+        int tileWidth = cardArtResponse.getTargetWidth() > 0 ? cardArtResponse.getTargetWidth() : DEFAULT_TILE_WIDTH;
+        int tileHeight = cardArtResponse.getTargetHeight() > 0 ? cardArtResponse.getTargetHeight() : DEFAULT_TILE_HEIGHT;
+
         ArrangementMethod arrangementMethod = DEFAULT;
         if (request.getArrangementMethod() != null) arrangementMethod = request.getArrangementMethod();
 
@@ -31,12 +40,11 @@ public class ImageGenerator {
         List<BufferedImage> arrangedImages = arrangeImages(artList, arrangementMethod, numberOfColumns);
 
         int rows = calculateRows(arrangedImages.size(), numberOfColumns);
-        BufferedImage collage = createCollageCanvas(rows, numberOfColumns, request.getBorderSize());
-        drawImages(collage, arrangedImages, numberOfColumns, request.getBorderSize());
+        BufferedImage collage = createCollageCanvas(rows, numberOfColumns, request.getBorderSize(), tileWidth, tileHeight);
+        drawImages(collage, arrangedImages, numberOfColumns, request.getBorderSize(), tileWidth, tileHeight);
 
         return collage;
     }
-
 
     private List<BufferedImage> arrangeImages(List<BufferedImage> images, ArrangementMethod method, int numberOfColumns) {
         return switch (method) {
@@ -50,21 +58,17 @@ public class ImageGenerator {
         };
     }
 
-    // ==================== Default (Original-Reihenfolge) ====================
+    // ==================== Arrangement-Methoden (unverändert) ====================
 
     private List<BufferedImage> arrangeDefault(List<BufferedImage> images) {
         return new ArrayList<>(images);
     }
-
-    // ==================== Random (Zufällige Anordnung) ====================
 
     private List<BufferedImage> arrangeRandom(List<BufferedImage> images) {
         List<BufferedImage> shuffled = new ArrayList<>(images);
         Collections.shuffle(shuffled);
         return shuffled;
     }
-
-    // ==================== Sortierung ====================
 
     private List<BufferedImage> sortByRainbowColor(List<BufferedImage> images) {
         List<BufferedImage> sorted = new ArrayList<>(images);
@@ -104,8 +108,6 @@ public class ImageGenerator {
         return hue;
     }
 
-    // ==================== Diagonal ====================
-
     private List<BufferedImage> arrangeDiagonally(List<BufferedImage> sortedImages, int numberOfColumns) {
         int rows = calculateRows(sortedImages.size(), numberOfColumns);
         BufferedImage[][] grid = new BufferedImage[rows][numberOfColumns];
@@ -124,8 +126,6 @@ public class ImageGenerator {
 
         return gridToList(grid, rows, numberOfColumns);
     }
-
-    // ==================== Hilbert-Kurve ====================
 
     private List<BufferedImage> arrangeByHilbertCurve(List<BufferedImage> sortedImages, int numberOfColumns) {
         int rows = calculateRows(sortedImages.size(), numberOfColumns);
@@ -177,8 +177,6 @@ public class ImageGenerator {
         return new Point(x, y);
     }
 
-    // ==================== SOM ====================
-
     private List<BufferedImage> arrangeBySOM(List<BufferedImage> images, int numberOfColumns) {
         int rows = calculateRows(images.size(), numberOfColumns);
         double[][] colorMap = new double[rows][numberOfColumns];
@@ -228,8 +226,6 @@ public class ImageGenerator {
 
     private record ImageWithHue(BufferedImage image, double hue) {}
 
-    // ==================== Snake ====================
-
     private List<BufferedImage> arrangeSnake(List<BufferedImage> sortedImages, int numberOfColumns) {
         int rows = calculateRows(sortedImages.size(), numberOfColumns);
         BufferedImage[][] grid = new BufferedImage[rows][numberOfColumns];
@@ -250,7 +246,7 @@ public class ImageGenerator {
         return gridToList(grid, rows, numberOfColumns);
     }
 
-    // ==================== Hilfsmethoden ====================
+    // ==================== Hilfsmethoden (angepasst) ====================
 
     private List<BufferedImage> gridToList(BufferedImage[][] grid, int rows, int numberOfColumns) {
         List<BufferedImage> result = new ArrayList<>();
@@ -272,9 +268,9 @@ public class ImageGenerator {
         return (int) Math.ceil((double) imageCount / numberOfColumns);
     }
 
-    private BufferedImage createCollageCanvas(int rows, int numberOfColumns, int borderSize) {
-        int width = numberOfColumns * TILE_WIDTH + (numberOfColumns + 1) * borderSize;
-        int height = rows * TILE_HEIGHT + (rows + 1) * borderSize;
+    private BufferedImage createCollageCanvas(int rows, int numberOfColumns, int borderSize, int tileWidth, int tileHeight) {
+        int width = numberOfColumns * tileWidth + (numberOfColumns + 1) * borderSize;
+        int height = rows * tileHeight + (rows + 1) * borderSize;
 
         BufferedImage canvas = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         fillBackground(canvas);
@@ -289,22 +285,22 @@ public class ImageGenerator {
         g2d.dispose();
     }
 
-    private void drawImages(BufferedImage collage, List<BufferedImage> images, int numberOfColumns, int borderSize) {
+    private void drawImages(BufferedImage collage, List<BufferedImage> images, int numberOfColumns, int borderSize, int tileWidth, int tileHeight) {
         Graphics2D g2d = collage.createGraphics();
 
         for (int i = 0; i < images.size(); i++) {
-            Point position = calculatePosition(i, numberOfColumns, borderSize);
-            g2d.drawImage(images.get(i), position.x, position.y, TILE_WIDTH, TILE_HEIGHT, null);
+            Point position = calculatePosition(i, numberOfColumns, borderSize, tileWidth, tileHeight);
+            g2d.drawImage(images.get(i), position.x, position.y, tileWidth, tileHeight, null);
         }
 
         g2d.dispose();
     }
 
-    private Point calculatePosition(int index, int numberOfColumns, int borderSize) {
+    private Point calculatePosition(int index, int numberOfColumns, int borderSize, int tileWidth, int tileHeight) {
         int col = index % numberOfColumns;
         int row = index / numberOfColumns;
-        int x = borderSize + col * (TILE_WIDTH + borderSize);
-        int y = borderSize + row * (TILE_HEIGHT + borderSize);
+        int x = borderSize + col * (tileWidth + borderSize);
+        int y = borderSize + row * (tileHeight + borderSize);
 
         return new Point(x, y);
     }
