@@ -14,5 +14,6 @@ public class ScryfallCard{
     private String name;
     private String pictureUri;
     private ScryfallImageUris image_uris;
+    private String id;
 }
 

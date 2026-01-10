@@ -10,6 +10,7 @@ import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallCard;
 import com.doci.mtgpicgen.scryfallclient.clientdto.ScryfallResponse;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @org.springframework.stereotype.Service
@@ -37,7 +38,7 @@ public class Service {
 
     private ImageServiceRequest mapToImageServiceRequest (CollageRequest collageRequest, ScryfallResponse scryfallResponse) {
         ImageServiceRequest imageServiceRequest = new ImageServiceRequest();
-        imageServiceRequest.setCardList(scryfallResponse.getCardList());
+        imageServiceRequest.setCardList(new ArrayList<>(scryfallResponse.getCardList()));
         imageServiceRequest.setCollageNumberOfColumns(collageRequest.getNumberOfColumns());
         imageServiceRequest.setCollageWidth(collageRequest.getCollageWidth());
         imageServiceRequest.setCollageHeight(collageRequest.getCollageHeight());
