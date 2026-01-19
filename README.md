@@ -11,7 +11,7 @@ Backend:
   ~~15 basic lands promos from CMM~~
 
   Max resolution to 65k uncapped
-  Put ratio variable in request
+
   How to handle non standard cards
     fullart
     extendedart
@@ -20,13 +20,16 @@ Backend:
     showcase
     promo
     saga
-  handle search parameters(make search parameters get handled in backend compared to frontend)
-    add tagger tags
+
+  Put ratio variable in request
   Preset for common desktop resolutions
   vertical and horizontal layout
+
+  handle search parameters(make search parameters get handled in backend compared to frontend)
+    add tagger tags
   write tests
   
-  
+  Microservice Architektur implementieren
 
   Mosaic Picture over Mana Symbol
   Make backend safe
@@ -50,3 +53,4 @@ Misc:
   Make artist List avaible for User
   ~~Fix Github Commits~~
   commander layout
+

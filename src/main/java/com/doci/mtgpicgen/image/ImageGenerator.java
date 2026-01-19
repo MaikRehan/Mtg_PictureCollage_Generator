@@ -27,9 +27,10 @@ public class ImageGenerator {
             return createEmptyImage();
         }
 
-        // Dynamische Dimensionen aus Response verwenden
+        // Dimensionen aus Response verwenden. Standardwert wenn response keine Dimensionen hat.
         int tileWidth = cardArtResponse.getTargetWidth() > 0 ? cardArtResponse.getTargetWidth() : DEFAULT_TILE_WIDTH;
         int tileHeight = cardArtResponse.getTargetHeight() > 0 ? cardArtResponse.getTargetHeight() : DEFAULT_TILE_HEIGHT;
+
 
         ArrangementMethod arrangementMethod = DEFAULT;
         if (request.getArrangementMethod() != null) arrangementMethod = request.getArrangementMethod();

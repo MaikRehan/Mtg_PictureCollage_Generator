@@ -1,0 +1,62 @@
+.collage-display {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.collage-display.placeholder {
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+.collage-display.placeholder p {
+    font-size: 1.5rem;
+    opacity: 0.5;
+}
+
+.collage-display.error {
+    border: 2px solid #ef5350;
+}
+
+.collage-display h3 {
+    margin: 0 0 1rem;
+}
+
+.collage-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: auto;
+}
+
+.collage-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.collage-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.download-button {
+    padding: 0.75rem 1.5rem;
+    background: #4caf50;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+
+.download-button:hover {
+    background: #43a047;
+}
